@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi‑Converter · Units & BMI</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #f0f4fa 0%, #d9e2ef 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .converter-card {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0,10,30,0.25), 0 8px 20px rgba(0,0,0,0.1), inset 0 1px 2px rgba(255,255,255,0.6);
+            padding: 2rem 1.8rem;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem 0;
+            color: #0b1e33;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        h1 span {
+            background: #1e3b5c;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            letter-spacing: 0.3px;
+        }
+        .sub {
+            color: #2c3f5c;
+            margin-bottom: 1.75rem;
+            font-size: 0.95rem;
+            border-left: 4px solid #4f7aa6;
+            padding-left: 1rem;
+            background: rgba(255,255,255,0.3);
+            border-radius: 0 8px 8px 0;
+        }
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            background: rgba(10,25,45,0.06);
+            padding: 0.5rem;
+            border-radius: 3rem;
+            backdrop-filter: blur(4px);
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 0.7rem 1.3rem;
+            font-size: 0.95rem;
+            font-weight: 550;
+            border-radius: 3rem;
+            color: #1f3a57;
+            cursor: pointer;
+            transition: 0.2s;
+            flex: 1 0 auto;
+            white-space: nowrap;
+        }
+        .tab-btn:hover {
+            background: rgba(255,255,255,0.5);
+            color: #0b2540;
+        }
+        .tab-btn.active {
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,35,70,0.2);
+            color: #0c2b48;
+            font-weight: 600;
+        }
+        .converter-panel {
+            background: rgba(255,255,255,0.5);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 2rem;
+            padding: 1.8rem 1.5rem;
+            border: 1px solid rgba(255,255,255,0.7);
+            box-shadow: inset 0 1px 4px white, 0 10px 20px -10px rgba(0,30,50,0.2);
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+        .conversion-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .conversion-row .field {
+            flex: 2 1 180px;
+            display: flex;
+            flex-direction: column;
+        }
+        .conversion-row .swap-area {
+            flex: 0 0 auto;
+            display: flex;
+            justify-content: center;
+            font-size: 1.6rem;
+            color: #2f577b;
+            opacity: 0.7;
+            padding: 0 0.2rem;
+        }
+        label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: #1c3b59;
+            margin-bottom: 0.2rem;
+        }
+        input, select {
+            background: white;
+            border: 1px solid #b3c9df;
+            border-radius: 40px;
+            padding: 0.8rem 1.2rem;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.15s;
+            width: 100%;
+        }
+        input:focus, select:focus {
+            border-color: #1d5b9e;
+            box-shadow: 0 0 0 3px rgba(28, 85, 150, 0.2);
+        }
+        .bmi-specific {
+            background: rgba(255,255,255,0.4);
+            border-radius: 28px;
+            padding: 1.2rem;
+        }
+        .bmi-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            margin-bottom: 1.2rem;
+        }
+        .bmi-row .field {
+            flex: 1 1 160px;
+        }
+        .bmi-result {
+            background: #eef4fc;
+            border-radius: 40px;
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            border: 1px solid #acc4dd;
+        }
+        .bmi-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #0b2b47;
+            line-height: 1.2;
+        }
+        .bmi-category {
+            background: #1d4e7c;
+            color: white;
+            padding: 0.3rem 1.4rem;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 8px rgba(0,30,70,0.2);
+        }
+        .footnote {
+            margin-top: 1.2rem;
+            font-size: 0.85rem;
+            color: #1e3d60;
+            text-align: center;
+            background: rgba(255,255,255,0.7);
+            padding: 0.5rem 1rem;
+            border-radius: 40px;
+        }
+        .swap-icon {
+            background: rgba(255,255,255,0.6);
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: 0.15s;
+            user-select: none;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        .swap-icon:hover {
+            background: white;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0,30,70,0.2);
+        }
+        hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #a0bcdb, transparent);
+            margin: 1.5rem 0 0.8rem 0;
+        }
+    </style>
+</head>
+<body>
+<div class="converter-card">
+    <h1>⚖️ Unit converter <span>+BMI</span></h1>
+    <div class="sub">Temperature · Length · Distance · Weight · Body Mass Index</div>
+
+    <!-- category tabs -->
+    <div class="category-tabs">
+        <button class="tab-btn active" data-cat="temp">🌡️ Temperature</button>
+        <button class="tab-btn" data-cat="length">📏 Length</button>
+        <button class="tab-btn" data-cat="distance">🗺️ Distance</button>
+        <button class="tab-btn" data-cat="weight">⚖️ Weight</button>
+        <button class="tab-btn" data-cat="bmi">❤️ BMI</button>
+    </div>
+
+    <!-- dynamic panels injected here -->
+    <div id="panelContainer" class="converter-panel">
+        <!-- javascript will fill -->
+    </div>
+    <div class="footnote">
+        ⚡ All conversions update in real time · BMI uses metric (kg/cm) or imperial (lb/in) automatically
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ---------- unit definitions ----------
+        const categories = ['temp', 'length', 'distance', 'weight', 'bmi'];
+        let activeCategory = 'temp';
+
+        // temperature
+        const tempUnits = ['Celsius', 'Fahrenheit', 'Kelvin'];
+        // length (cm, m, in, ft)
+        const lengthUnits = ['centimeter', 'meter', 'inch', 'foot'];
+        // distance (km, mile, nautical mile, yard) – we show both length & distance, but separate tabs
+        const distanceUnits = ['kilometer', 'mile', 'nautical mile', 'yard'];
+        // weight (kg, lb, stone, gram)
+        const weightUnits = ['kilogram', 'pound', 'stone', 'gram'];
+
+        // ---------- helper: conversion functions ----------
+        function convertTemp(value, fromUnit, toUnit) {
+            if (fromUnit === toUnit) return value;
+            let celsius;
+            if (fromUnit === 'Celsius') celsius = value;
+            else if (fromUnit === 'Fahrenheit') celsius = (value - 32) * 5/9;
+            else if (fromUnit === 'Kelvin') celsius = value - 273.15;
+
+            if (toUnit === 'Celsius') return celsius;
+            if (toUnit === 'Fahrenheit') return celsius * 9/5 + 32;
+            if (toUnit === 'Kelvin') return celsius + 273.15;
+            return NaN;
+        }
+
+        // length (base unit: meter)
+        function toBaseLength(val, unit) {
+            switch(unit) {
+                case 'centimeter': return val / 100;
+                case 'meter': return val;
+                case 'inch': return val * 0.0254;
+                case 'foot': return val * 0.3048;
+                default: return val;
+            }
+        }
+        function fromBaseLength(val, unit) {
+            switch(unit) {
+                case 'centimeter': return val * 100;
+                case 'meter': return val;
+                case 'inch': return val / 0.0254;
+                case 'foot': return val / 0.3048;
+                default: return val;
+            }
+        }
+
+        // distance (base unit: meter – but we use kilometer as common sense)
+        function toBaseDistance(val, unit) {
+            switch(unit) {
+                case 'kilometer': return val * 1000;
+                case 'mile': return val * 1609.344;
+                case 'nautical mile': return val * 1852;
+                case 'yard': return val * 0.9144;
+                default: return val;
+            }
+        }
+        function fromBaseDistance(val, unit) {
+            switch(unit) {
+                case 'kilometer': return val / 1000;
+                case 'mile': return val / 1609.344;
+                case 'nautical mile': return val / 1852;
+                case 'yard': return val / 0.9144;
+                default: return val;
+            }
+        }
+
+        // weight (base unit: kilogram)
+        function toBaseWeight(val, unit) {
+            switch(unit) {
+                case 'kilogram': return val;
+                case 'pound': return val * 0.45359237;
+                case 'stone': return val * 6.35029318;
+                case 'gram': return val / 1000;
+                default: return val;
+            }
+        }
+        function fromBaseWeight(val, unit) {
+            switch(unit) {
+                case 'kilogram': return val;
+                case 'pound': return val / 0.45359237;
+                case 'stone': return val / 6.35029318;
+                case 'gram': return val * 1000;
+                default: return val;
+            }
+        }
+
+        // ---------- BMI calculator (metric & imperial) ----------
+        function computeBMI(weight, weightUnit, height, heightUnit) {
+            // height in cm or inches -> always convert to meters
+            let heightInMeters;
+            if (heightUnit === 'cm') heightInMeters = height / 100;
+            else if (heightUnit === 'meter') heightInMeters = height;
+            else if (heightUnit === 'inch') heightInMeters = height * 0.0254;
+            else if (heightUnit === 'foot') heightInMeters = height * 0.3048;
+            else heightInMeters = NaN;
+
+            let weightInKg;
+            if (weightUnit === 'kg') weightInKg = weight;
+            else if (weightUnit === 'lb') weightInKg = weight * 0.45359237;
+            else if (weightUnit === 'gram') weightInKg = weight / 1000;
+            else if (weightUnit === 'stone') weightInKg = weight * 6.35029318;
+            else weightInKg = NaN;
+
+            if (heightInMeters <= 0 || weightInKg <= 0) return null;
+            return weightInKg / (heightInMeters * heightInMeters);
+        }
+
+        function bmiCategory(bmi) {
+            if (bmi < 18.5) return 'Underweight';
+            if (bmi < 25) return 'Healthy';
+            if (bmi < 30) return 'Overweight';
+            return 'Obese';
+        }
+
+        // ---------- render panel based on active category ----------
+        function renderPanel(cat) {
+            const container = document.getElementById('panelContainer');
+            if (!container) return;
+
+            if (cat === 'temp') {
+                container.innerHTML = `
+                    <div class="input-group">
+                        <div class="conversion-row">
+                            <div class="field">
+                                <label>From</label>
+                                <input type="number" id="tempFromVal" value="0" step="any">
+                            </div>
+                            <div class="swap-area">
+                                <div class="swap-icon" id="swapTempUnits">⇄</div>
+                            </div>
+                            <div class="field">
+                                <label>To</label>
+                                <input type="number" id="tempToVal" value="32" step="any" readonly style="background:#f4f9ff">
+                            </div>
+                        </div>
+                        <div class="conversion-row">
+                            <div class="field">
+                                <select id="tempFromUnit">
+                                    <option value="Celsius" selected>Celsius</option>
+                                    <option value="Fahrenheit">Fahrenheit</option>
+                                    <option value="Kelvin">Kelvin</option>
+                                </select>
+                            </div>
+                            <div class="swap-area"></div>
+                            <div class="field">
+                                <select id="tempToUnit">
+                                    <option value="Fahrenheit" selected>Fahrenheit</option>
+                                    <option value="Celsius">Celsius</option>
+                                    <option value="Kelvin">Kelvin</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                attachTempEvents();
+            }
+            else if (cat === 'length') {
+                container.innerHTML = `
+                    <div class="input-group">
+                        <div class="conversion-row">
+                            <div class="field"><label>From</label><input type="number" id="lengthFromVal" value="100" step="any"></div>
+                            <div class="swap-area"><div class="swap-icon" id="swapLengthUnits">⇄</div></div>
+                            <div class="field"><label>To</label><input type="number" id="lengthToVal" step="any" readonly style="background:#f4f9ff"></div>
+                        </div>
+                        <div class="conversion-row">
+                            <div class="field"><select id="lengthFromUnit">${unitOptions(lengthUnits, 'centimeter')}</select></div>
+                            <div class="swap-area"></div>
+                            <div class="field"><select id="lengthToUnit">${unitOptions(lengthUnits, 'meter')}</select></div>
+                        </div>
+                    </div>
+                `;
+                attachLengthEvents();
+            }
+            else if (cat === 'distance') {
+                container.innerHTML = `
+                    <div class="input-group">
+                        <div class="conversion-row">
+                            <div class="field"><label>From</label><input type="number" id="distFromVal" value="5" step="any"></div>
+                            <div class="swap-area"><div class="swap-icon" id="swapDistUnits">⇄</div></div>
+                            <div class="field"><label>To</label><input type="number" id="distToVal" step="any" readonly style="background:#f4f9ff"></div>
+                        </div>
+                        <div class="conversion-row">
+                            <div class="field"><select id="distFromUnit">${unitOptions(distanceUnits, 'kilometer')}</select></div>
+                            <div class="swap-area"></div>
+                            <div class="field"><select id="distToUnit">${unitOptions(distanceUnits, 'mile')}</select></div>
+                        </div>
+                    </div>
+                `;
+                attachDistanceEvents();
+            }
+            else if (cat === 'weight') {
+                container.innerHTML = `
+                    <div class="input-group">
+                        <div class="conversion-row">
+                            <div class="field"><label>From</label><input type="number" id="weightFromVal" value="70" step="any"></div>
+                            <div class="swap-area"><div class="swap-icon" id="swapWeightUnits">⇄</div></div>
+                            <div class="field"><label>To</label><input type="number" id="weightToVal" step="any" readonly style="background:#f4f9ff"></div>
+                        </div>
+                        <div class="conversion-row">
+                            <div class="field"><select id="weightFromUnit">${unitOptions(weightUnits, 'kilogram')}</select></div>
+                            <div class="swap-area"></div>
+                            <div class="field"><select id="weightToUnit">${unitOptions(weightUnits, 'pound')}</select></div>
+                        </div>
+                    </div>
+                `;
+                attachWeightEvents();
+            }
+            else if (cat === 'bmi') {
+                container.innerHTML = `
+                    <div class="bmi-specific">
+                        <div class="bmi-row">
+                            <div class="field"><label>Weight</label><input type="number" id="bmiWeight" value="70" step="0.1"></div>
+                            <div class="field"><label>Unit</label><select id="bmiWeightUnit"><option value="kg" selected>kg</option><option value="lb">lb</option><option value="stone">stone</option><option value="gram">gram</option></select></div>
+                        </div>
+                        <div class="bmi-row">
+                            <div class="field"><label>Height</label><input type="number" id="bmiHeight" value="175" step="0.1"></div>
+                            <div class="field"><label>Unit</label><select id="bmiHeightUnit"><option value="cm" selected>cm</option><option value="meter">meter</option><option value="inch">inch</option><option value="foot">foot</option></select></div>
+                        </div>
+                        <div class="bmi-result">
+                            <div><span class="bmi-value" id="bmiValue">22.9</span> <span style="font-size:1rem; margin-left:8px;">kg/m²</span></div>
+                            <div><span class="bmi-category" id="bmiCategory">Healthy</span></div>
+                        </div>
+                        <p style="margin-top:0.8rem; font-size:0.9rem; background:rgba(255,255,255,0.6); padding:0.4rem 1rem; border-radius:40px; text-align:center;">⚖️ BMI = weight(kg) / height(m)², Best: 22</p>
+                    </div>
+                `;
+                attachBMIEvents();
+            }
+        }
+
+        function unitOptions(units, selectedVal) {
+            return units.map(u => `<option value="${u}" ${u === selectedVal ? 'selected' : ''}>${u}</option>`).join('');
+        }
+
+        // ---------- attach events per panel ----------
+        function attachTempEvents() {
+            const fromVal = document.getElementById('tempFromVal');
+            const toVal = document.getElementById('tempToVal');
+            const fromUnit = document.getElementById('tempFromUnit');
+            const toUnit = document.getElementById('tempToUnit');
+            const swapBtn = document.getElementById('swapTempUnits');
+
+            function update() {
+                const val = parseFloat(fromVal.value);
+                if (isNaN(val)) { toVal.value = ''; return; }
+                const converted = convertTemp(val, fromUnit.value, toUnit.value);
+                toVal.value = converted.toFixed(4);
+            }
+            [fromVal, fromUnit, toUnit].forEach(el => el.addEventListener('input', update));
+            swapBtn.addEventListener('click', () => {
+                [fromUnit.value, toUnit.value] = [toUnit.value, fromUnit.value];
+                update();
+            });
+            update();
+        }
+
+        function attachLengthEvents() {
+            const fromVal = document.getElementById('lengthFromVal');
+            const toVal = document.getElementById('lengthToVal');
+            const fromUnit = document.getElementById('lengthFromUnit');
+            const toUnit = document.getElementById('lengthToUnit');
+            const swap = document.getElementById('swapLengthUnits');
+
+            function update() {
+                const val = parseFloat(fromVal.value);
+                if (isNaN(val)) { toVal.value = ''; return; }
+                const base = toBaseLength(val, fromUnit.value);
+                const result = fromBaseLength(base, toUnit.value);
+                toVal.value = result.toFixed(6);
+            }
+            [fromVal, fromUnit, toUnit].forEach(el => el.addEventListener('input', update));
+            swap.addEventListener('click', () => { [fromUnit.value, toUnit.value] = [toUnit.value, fromUnit.value]; update(); });
+            update();
+        }
+
+        function attachDistanceEvents() {
+            const fromVal = document.getElementById('distFromVal');
+            const toVal = document.getElementById('distToVal');
+            const fromUnit = document.getElementById('distFromUnit');
+            const toUnit = document.getElementById('distToUnit');
+            const swap = document.getElementById('swapDistUnits');
+
+            function update() {
+                const val = parseFloat(fromVal.value);
+                if (isNaN(val)) { toVal.value = ''; return; }
+                const base = toBaseDistance(val, fromUnit.value);
+                const result = fromBaseDistance(base, toUnit.value);
+                toVal.value = result.toFixed(6);
+            }
+            [fromVal, fromUnit, toUnit].forEach(el => el.addEventListener('input', update));
+            swap.addEventListener('click', () => { [fromUnit.value, toUnit.value] = [toUnit.value, fromUnit.value]; update(); });
+            update();
+        }
+
+        function attachWeightEvents() {
+            const fromVal = document.getElementById('weightFromVal');
+            const toVal = document.getElementById('weightToVal');
+            const fromUnit = document.getElementById('weightFromUnit');
+            const toUnit = document.getElementById('weightToUnit');
+            const swap = document.getElementById('swapWeightUnits');
+
+            function update() {
+                const val = parseFloat(fromVal.value);
+                if (isNaN(val)) { toVal.value = ''; return; }
+                const base = toBaseWeight(val, fromUnit.value);
+                const result = fromBaseWeight(base, toUnit.value);
+                toVal.value = result.toFixed(6);
+            }
+            [fromVal, fromUnit, toUnit].forEach(el => el.addEventListener('input', update));
+            swap.addEventListener('click', () => { [fromUnit.value, toUnit.value] = [toUnit.value, fromUnit.value]; update(); });
+            update();
+        }
+
+        function attachBMIEvents() {
+            const weightIn = document.getElementById('bmiWeight');
+            const weightUnit = document.getElementById('bmiWeightUnit');
+            const heightIn = document.getElementById('bmiHeight');
+            const heightUnit = document.getElementById('bmiHeightUnit');
+            const bmiSpan = document.getElementById('bmiValue');
+            const catSpan = document.getElementById('bmiCategory');
+
+            function updateBMI() {
+                const w = parseFloat(weightIn.value);
+                const h = parseFloat(heightIn.value);
+                if (isNaN(w) || isNaN(h) || w <= 0 || h <= 0) {
+                    bmiSpan.innerText = '?';
+                    catSpan.innerText = 'invalid';
+                    return;
+                }
+                const bmi = computeBMI(w, weightUnit.value, h, heightUnit.value);
+                if (bmi === null || !isFinite(bmi)) {
+                    bmiSpan.innerText = '?';
+                    catSpan.innerText = 'error';
+                } else {
+                    bmiSpan.innerText = bmi.toFixed(2);
+                    catSpan.innerText = bmiCategory(bmi);
+                }
+            }
+            [weightIn, weightUnit, heightIn, heightUnit].forEach(el => el.addEventListener('input', updateBMI));
+            updateBMI();
+        }
+
+        // ---------- tab switching ----------
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const cat = e.target.dataset.cat;
+                if (!cat) return;
+                activeCategory = cat;
+                tabButtons.forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                renderPanel(cat);
+            });
+        });
+
+        // initial render
+        renderPanel('temp');
+    })();
+</script>
+</body>
+</html>
