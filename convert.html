@@ -459,18 +459,18 @@
                 container.innerHTML = `
                     <div class="bmi-specific">
                         <div class="bmi-row">
-                            <div class="field"><label>Weight</label><input type="number" id="bmiWeight" value="70" step="0.1"></div>
-                            <div class="field"><label>Unit</label><select id="bmiWeightUnit"><option value="kg" selected>kg</option><option value="lb">lb</option><option value="stone">stone</option><option value="gram">gram</option></select></div>
+                            <div class="field"><label>Weight</label><input type="number" id="bmiWeight" value="150" step="0.1"></div>
+                            <div class="field"><label>Unit</label><select id="bmiWeightUnit"><option value="lb" selected>lb</option><option value="kg">kg</option><option value="stone">stone</option><option value="gram">gram</option></select></div>
                         </div>
                         <div class="bmi-row">
-                            <div class="field"><label>Height</label><input type="number" id="bmiHeight" value="175" step="0.1"></div>
+                            <div class="field"><label>Height</label><input type="number" id="bmiHeight" value="173" step="0.1"></div>
                             <div class="field"><label>Unit</label><select id="bmiHeightUnit"><option value="cm" selected>cm</option><option value="meter">meter</option><option value="inch">inch</option><option value="foot">foot</option></select></div>
                         </div>
                         <div class="bmi-result">
                             <div><span class="bmi-value" id="bmiValue">22.9</span> <span style="font-size:1rem; margin-left:8px;">kg/m²</span></div>
                             <div><span class="bmi-category" id="bmiCategory">Healthy</span></div>
                         </div>
-                        <p style="margin-top:0.8rem; font-size:0.9rem; background:rgba(255,255,255,0.6); padding:0.4rem 1rem; border-radius:40px; text-align:center;">⚖️ BMI = weight(kg) / height(m)², Best: 22</p>
+                        <p style="margin-top:0.8rem; font-size:0.9rem; background:rgba(255,255,255,0.6); padding:0.4rem 1rem; border-radius:40px; text-align:center;">⚖️ BMI = lb × 0.45359237 ÷ (cm ÷ 100)².  Best BMI: 22</p>
                     </div>
                 `;
                 attachBMIEvents();
